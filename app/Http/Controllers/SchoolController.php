@@ -12,7 +12,7 @@ class SchoolController extends Controller
      */
     public function index()
     {
-        $school = School::all();
+        $school = School::paginate(10);
         return view('index', compact('school'));
     }
 
@@ -46,6 +46,9 @@ class SchoolController extends Controller
      */
     public function edit(string $id)
     {
+        if(auth()->user()->isAdmin != 1){
+            return redirect('/school')->with('error', 'Ограничен достъп!');
+        }
         $school = School::findOrFail($id);
         return view('edit', compact('school'));
     }
@@ -55,9 +58,12 @@ class SchoolController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if(auth()->user()->isAdmin != 1){    
+            return redirect('/students')->with('error', 'Ограничен достъп!');
+        }
         $validatedData=$request->validate(School::rules());
         School::whereId($id)->update($validatedData);
-        return redirect('/students')->with('success', 'Данните на заведението бяха актуализирани');
+        return redirect('/school')->with('success', 'Данните на заведението бяха актуализирани');
     }
 
     /**
@@ -65,6 +71,9 @@ class SchoolController extends Controller
      */
     public function destroy(string $id)
     {
+        if(auth()->user()->isAdmin != 1){
+            return redirect('/students')->with('error', 'Ограничен достъп!');
+        }
         $school = School::findOrFail($id);
         $school->delete();
         return redirect('/school')->with('success', 'Данните бяха успешно изтрити');
